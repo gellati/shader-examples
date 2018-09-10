@@ -7,6 +7,7 @@ import image from '../static/media/images/stones.jpg'
 const myshaders = {
 
   vshader : `varying vec2 vUv;
+             varying vec2 ccc;
              void main(){
                vUv = uv;
                vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);

@@ -10,14 +10,11 @@ const StyledMainImageComponent = styled.div`
   transition: .8s;
 `
 
-
-/*
-"extends": [
-  "eslint:recommended",
-  "plugin:react/recommended"
-],
-
-*/
+var mainData = {
+  fshader: '',
+  vshader: '',
+  image: ''
+}
 
 class MainImageComponent extends Component{
   constructor(props){
@@ -26,18 +23,17 @@ class MainImageComponent extends Component{
     this.stop = this.stop.bind(this)
     this.renderShader = this.renderShader.bind(this)
     this.animate = this.animate.bind(this)
-    this.componentClick = this.componentClick.bind(this)
     this.setWidth = this.setWidth.bind(this)
     this.prepareAnimate = this.prepareAnimate.bind(this)
     this.doAnimate = this.doAnimate.bind(this)
     this.doAppendChild = this.doAppendChild.bind(this)
     this.state = {
-      clicked: false,
-      main: false,
-      fshader: '',
-      vshader: '',
-      image: ''
+      vshader: props.vshader,
+      fshader: props.fshader,
+      image: props.image
     }
+    let renderer = new THREE.WebGLRenderer({antialias: true});
+    this.renderer = renderer
 
     if(this.props.width){
       this.state.width = this.props.width
@@ -69,40 +65,47 @@ class MainImageComponent extends Component{
     this.setState({height: height})
   }
 
-  componentDidUpdate(){
-//static getDerivedStateFromProps(props, state){
-//    if(this.state.fshader !== this.props.fshader){
-
-/*
-      this.setState({
-        fshader: this.props.fshader,
-        vshader: this.props.vshader,
-        image: this.props.image
-      });
-*/
-      console.log("componentDidUpdate render fshader: ", this.props.fshader)
-      console.log("componentDidUpdate render vshader: ", this.props.vshader)
-      console.log("componentDidUpdate render image: ", this.props.image)
-
-//      document.getElementById("main-image").innerHTML = "" //.removeChild()
-//      document.remove(mainShader)
-
-this.prepareAnimate()
-this.doAnimate()
-//    }
-
-  }
-
   componentDidMount(){
+    console.log("MainImageComponent componentDidMount render image: ", this.props.image)
+/*
+    mainData = {
+      fshader: this.props.fshader,
+      vshader: this.props.vshader,
+      image: this.props.image
+    }
+  */
     this.prepareAnimate()
     this.doAnimate();
     this.doAppendChild()
   }
 
+  componentDidUpdate(){
+    console.log("MainImageComponent componentDidUpdate render image: ", this.props.image)
+/*
+    mainData = {
+      fshader: this.props.selectImageData.fshader,
+      vshader: this.props.selectImageData.vshader,
+      image: this.props.selectImageData.image
+    }
+    */
+    mainData.fshader = this.props.fshader
+      mainData.vshader= this.props.vshader
+      mainData.image= this.props.image
+
+
+    console.log("Main componentDidUpdate3: ",
+         this.props.selectImageData)
+
+    console.log("MainImageComponent componentDidUpdate render mainData: ", mainData)
+
+    this.prepareAnimate()
+    this.doAnimate()
+    this.doAppendChild()
+  }
+
+////////////////////////
   prepareAnimate(){
-    console.log("componentDidMount render fshader: ", this.props.fshader)
-    console.log("componentDidMount render vshader: ", this.props.vshader)
-    console.log("componentDidMount render image: ", this.props.image)
+    console.log("MainImageComponent prepareAnimate: ", this.props.image)
 
     const width = this.state.width; // 400
     const height = this.state.height; // 400
@@ -110,13 +113,11 @@ this.doAnimate()
     let scene = new THREE.Scene();
     let camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000000); //, window.innerWidth / window.innerHeight, 1, 1000000);
     camera.position.z = 1;
-
-    let renderer = new THREE.WebGLRenderer({antialias: true});
-    renderer.setSize(width, height); //window.innerWidth, window.innerHeight);
+    this.renderer.setSize(width, height); //window.innerWidth, window.innerHeight);
     let clock = new THREE.Clock();
     const loader = new THREE.TextureLoader();
 
-    const texture = loader.load(this.props.image)
+    const texture = loader.load(mainData.image)
     const uniforms = {
       iTime: { type: "f", value: 10000.0},
       iResolution: { type: "v2", value: new THREE.Vector2()},
@@ -127,8 +128,8 @@ this.doAnimate()
 
     const material = new THREE.ShaderMaterial({
       uniforms: uniforms,
-      vertexShader: this.props.vshader, // document.getElementById('vertexShader').textContent,
-      fragmentShader: this.props.fshader
+      vertexShader: mainData.vshader, // document.getElementById('vertexShader').textContent,
+      fragmentShader: mainData.fshader
     }); // document.getElementById('fragmentShader').textContent });
 
     const geometry = new THREE.PlaneGeometry(1, 1);
@@ -139,27 +140,18 @@ this.doAnimate()
 
     this.scene = scene
     this.camera = camera
-    this.renderer = renderer
+//    this.renderer = renderer
     this.uniforms = uniforms
     this.clock = clock
-    console.log(this.renderer.domElement)
-//    renderer.render(camera, scene)
-
-console.log(this.state.main)
-
-
-this.mount.appendChild(this.renderer.domElement);
-this.animate();
-
-//    this.mount.replaceChild(this.renderer.domElement, this.mainImage.current);
   }
 
   doAppendChild(){
+    this.mount.appendChild(this.renderer.domElement);
   }
 
   doAnimate(){
+    this.animate();
   }
-
 
   renderShader(){
     this.uniforms.iTime.value += this.clock.getDelta();
@@ -181,22 +173,8 @@ this.animate();
     requestAnimationFrame(this.animate);
     this.renderShader();
   }
-
-  componentClick(e) {
-//    console.log("ImageShaderComponent")
-//    this.props.componentClick(this.props.id, !this.props.selected);
-      const currentState = this.state.clicked
-      this.setState({ clicked: !currentState }, function(){
-        this.setWidth();
-      })
-      this.setState({main: true})
-
-  }
-
+////////////////////////
   render() {
-
-    console.log("MainImageComponent render fshader: ", this.props.fshader)
-    console.log("MainImageComponent render vshader: ", this.props.vshader)
     console.log("MainImageComponent render image: ", this.props.image)
 
     return (
@@ -213,10 +191,9 @@ this.animate();
 }
 
 MainImageComponent.propTypes = {
-  clicked: PropTypes.boolean,
   vshader: PropTypes.string,
   fshader: PropTypes.string,
-  image: PropTypes.string
+  image: PropTypes.string,
 }
 
 export default MainImageComponent;

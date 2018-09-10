@@ -10,15 +10,6 @@ const StyledImageShaderComponent = styled.div`
   transition: .8s;
 `
 
-
-/*
-"extends": [
-  "eslint:recommended",
-  "plugin:react/recommended"
-],
-
-*/
-
 class ImageShaderComponent extends Component{
   constructor(props){
     super(props);
@@ -27,7 +18,7 @@ class ImageShaderComponent extends Component{
     this.renderShader = this.renderShader.bind(this)
     this.animate = this.animate.bind(this)
     this.componentClick = this.componentClick.bind(this)
-    this.setWidth = this.setWidth.bind(this)
+    this.setBorder = this.setBorder.bind(this)
     this.state = {
       clicked: false,
     }
@@ -47,7 +38,7 @@ class ImageShaderComponent extends Component{
     }
   }
 
-  setWidth(){
+  setBorder(){
     if(this.state.clicked){
       this.mount.firstChild.style.border = "thick solid red"
       this.mount.firstChild.style.border = "thick solid red"
@@ -130,26 +121,17 @@ class ImageShaderComponent extends Component{
   }
 
   componentClick(e) {
-//    console.log("ImageShaderComponent")
-//    this.props.componentClick(this.props.id, !this.props.selected);
       const currentState = this.state.clicked
       this.setState({ clicked: !currentState }, function(){
-        this.setWidth();
+        this.setBorder();
       })
 
-/*
-      this.props.selectedImageData = {
+      let params = {
         vshader :  this.props.vshader,
         fshader : this.props.fshader,
         image : this.props.image
       }
-*/
-      let imageData = {
-        vshader :  this.props.vshader,
-        fshader : this.props.fshader,
-        image : this.props.image
-      }
-      this.props.handleClick(imageData)
+      this.props.selectedImage(params)
   }
 
   render() {

@@ -21,7 +21,7 @@ import LiquidMetalRings from './components/LiquidMetalRings'
 import ThreeShader from './components/ThreeShader'
 */
 
-import ImageList from './components/ImageList'
+import Dashboard from './components/Dashboard'
 
 //const App = <ShaderComponent vshader={myshaders.vshader} fshader={myshaders.fshader} />;
 
@@ -29,7 +29,7 @@ export default class App extends Component {
 
   render(){
     return(
-      <ImageList />
+      <Dashboard />
     )
   }
 }
