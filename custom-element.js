@@ -16,6 +16,11 @@ import { PolymerElement, html } from './node_modules/@polymer/polymer/polymer-el
 //import "./style-element.js";
 //window.onload = function(){
 
+document.addEventListener('DOMContentLoaded', function(){
+
+function startshader(){
+
+
 class CustomElement extends PolymerElement {
   static get template() {
     return html`
@@ -123,3 +128,6 @@ customElements.define('custom-element', CustomElement);
 <style> .mood { color: green; } </style>
 Web Components are <span class="mood">[[mood]]</span>!
 */
+}
+
+});
