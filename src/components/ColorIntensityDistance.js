@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
-import ShaderComponent from './ShaderComponent'
+import ImageShaderComponent from './ImageShaderComponent'
 
 const myshaders = {
   vshader : `varying vec2 vUv;
-                   void main(){
-                     vUv = uv;
-                     vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-                     gl_Position = projectionMatrix * mvPosition;
-                   }`,
+             void main(){
+               vUv = uv;
+               vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+               gl_Position = projectionMatrix * mvPosition;
+             }`,
   fshader : `
           uniform float iTime;
           uniform vec2 iResolution;
@@ -25,11 +25,17 @@ const myshaders = {
 }
 
 export default class ColorIntensityDistance extends Component {
+  constructor(){
+    super()
+  }
 
   render(){
+    var props = this.props
     return(
       <div>
-         <ShaderComponent vshader={myshaders.vshader} fshader={myshaders.fshader} />
+         <ImageShaderComponent vshader={myshaders.vshader}
+                               fshader={myshaders.fshader}
+                               {...props} />
       </div>
     )
   }

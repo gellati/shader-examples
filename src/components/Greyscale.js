@@ -33,8 +33,10 @@ export default class Greyscale extends Component {
   render(){
     var props = this.props
     return(
-         <ImageShaderComponent vshader={myshaders.vshader} fshader={myshaders.fshader} image={image}
-         {...props} />
+         <ImageShaderComponent vshader={myshaders.vshader}
+                               fshader={myshaders.fshader}
+                               image={image}
+                               {...props} />
     )
   }
 }

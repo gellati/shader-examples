@@ -51,11 +51,18 @@ fragColor = vec4(avg, 1.0)
 }
 
 export default class BoxBlur extends Component {
+  constructor(){
+    super()
+  }
 
   render(){
+    var props = this.props
     return(
       <div>
-         <ImageShaderComponent vshader={myshaders.vshader} fshader={myshaders.fshader} image={image} />
+         <ImageShaderComponent vshader={myshaders.vshader}
+                               fshader={myshaders.fshader}
+                               image={image}
+                               {...props}/>
       </div>
     )
   }

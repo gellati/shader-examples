@@ -17,6 +17,10 @@ class ImageShaderComponent extends Component{
     this.stop = this.stop.bind(this)
     this.renderShader = this.renderShader.bind(this)
     this.animate = this.animate.bind(this)
+    this.doAppendChild = this.doAppendChild.bind(this)
+    this.doAnimate = this.doAnimate.bind(this)
+    this.prepareAnimate = this.prepareAnimate.bind(this)
+
     this.componentClick = this.componentClick.bind(this)
     this.setBorder = this.setBorder.bind(this)
     this.state = {
@@ -36,6 +40,21 @@ class ImageShaderComponent extends Component{
     else{
       this.state.height = 200
     }
+
+    let renderer = new THREE.WebGLRenderer({antialias: true});
+    let scene = new THREE.Scene();
+    let camera = new THREE.PerspectiveCamera(45, this.state.width / this.state.height, 1, 1000000); //, window.innerWidth / window.innerHeight, 1, 1000000);
+    let clock = new THREE.Clock();
+    const loader = new THREE.TextureLoader();
+    const geometry = new THREE.PlaneGeometry(1, 1);
+
+    this.renderer = renderer
+    this.scene = scene
+    this.camera = camera
+    this.clock = clock
+    this.loader = loader
+    this.geometry = geometry
+
   }
 
   setBorder(){
@@ -44,59 +63,70 @@ class ImageShaderComponent extends Component{
       this.mount.firstChild.style.border = "thick solid red"
     }
     else{
-      this.mount.firstChild.style.border = "none"
-      this.mount.firstChild.style.border = "none"
+      this.mount.firstChild.style.border = "thick solid white"
+      this.mount.firstChild.style.border = "thick solid white"
     }
   }
 
-  setHeight(height){
-    this.setState({height: height})
+  componentDidMount(){
+    this.prepareAnimate()
+    this.doAppendChild();
+    this.doAnimate();
+
   }
 
-  componentDidMount(){
+  ////////////
+
+  prepareAnimate(){
     const width = this.state.width; // 400
     const height = this.state.height; // 400
 
-    let scene = new THREE.Scene();
-    let camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000000); //, window.innerWidth / window.innerHeight, 1, 1000000);
-    camera.position.z = 1;
+    this.camera.position.z = 1;
+    this.renderer.setSize(width, height); //window.innerWidth, window.innerHeight);
 
-    let renderer = new THREE.WebGLRenderer({antialias: true});
-    renderer.setSize(width, height); //window.innerWidth, window.innerHeight);
-    let clock = new THREE.Clock();
-    const loader = new THREE.TextureLoader();
+let uniforms = {}
 
-    const texture = loader.load(this.props.image)
-    const uniforms = {
+    if(this.props.image){
+    const texture = this.loader.load(this.props.image)
+    uniforms = {
       iTime: { type: "f", value: 10000.0},
       iResolution: { type: "v2", value: new THREE.Vector2()},
       texture1: {type: 't', value: texture }
     };
-    uniforms.iResolution.value.x = width; //window.innerWidth;
-    uniforms.iResolution.value.y = height; //window.innerHeight;
 
-    const material = new THREE.ShaderMaterial({
-      uniforms: uniforms,
-      vertexShader: this.props.vshader, // document.getElementById('vertexShader').textContent,
-      fragmentShader: this.props.fshader
-    }); // document.getElementById('fragmentShader').textContent });
+} else {
 
-    const geometry = new THREE.PlaneGeometry(1, 1);
-    const mesh = new THREE.Mesh(geometry, material);
+//  const texture = this.loader.load(this.props.image)
+  uniforms = {
+    iTime: { type: "f", value: 10000.0},
+    iResolution: { type: "v2", value: new THREE.Vector2()},
+  };
+
+}
+uniforms.iResolution.value.x = width; //window.innerWidth;
+uniforms.iResolution.value.y = height; //window.innerHeight;
+
+const material = new THREE.ShaderMaterial({
+  uniforms: uniforms,
+  vertexShader: this.props.vshader, // document.getElementById('vertexShader').textContent,
+  fragmentShader: this.props.fshader
+}); // document.getElementById('fragmentShader').textContent });
+
+    const mesh = new THREE.Mesh(this.geometry, material);
     mesh.scale.x = width; //window.innerWidth;
     mesh.scale.y = height; //window.innerHeight;
-    scene.add(mesh);
+    this.scene.add(mesh);
 
-    this.scene = scene
-    this.camera = camera
-    this.renderer = renderer
     this.uniforms = uniforms
-    this.clock = clock
-    console.log(this.renderer.domElement)
 
-    this.mount.appendChild(this.renderer.domElement);
+  }
+
+  doAnimate(){
     this.animate();
+  }
 
+  doAppendChild(){
+    this.mount.appendChild(this.renderer.domElement);
   }
 
   renderShader(){
@@ -120,18 +150,31 @@ class ImageShaderComponent extends Component{
     this.renderShader();
   }
 
-  componentClick(e) {
+////////////
+
+  componentClick() {
       const currentState = this.state.clicked
       this.setState({ clicked: !currentState }, function(){
         this.setBorder();
       })
 
-      let params = {
-        vshader :  this.props.vshader,
-        fshader : this.props.fshader,
-        image : this.props.image
+      if(this.props.image){
+        let params = {
+          vshader :  this.props.vshader,
+          fshader : this.props.fshader,
+          image : this.props.image
+        }
+        this.props.selectedImage(params)
       }
-      this.props.selectedImage(params)
+      else {
+        let params = {
+          vshader :  this.props.vshader,
+          fshader : this.props.fshader,
+          image : ''
+        }
+        this.props.selectedImage(params)
+
+      }
   }
 
   render() {
@@ -140,7 +183,7 @@ class ImageShaderComponent extends Component{
       className="shader-component">
       <div
       ref={(mount) => { this.mount = mount }}
-      onClick={(e)=>this.componentClick(e)}
+      onClick={this.componentClick}
       className={this.state.clicked ? 'main': null}
       >
       </div>
@@ -150,9 +193,13 @@ class ImageShaderComponent extends Component{
 }
 
 ImageShaderComponent.propTypes = {
-  vshader: PropTypes.string,
-  fshader: PropTypes.string,
-  image: PropTypes.string
+  vshader: PropTypes.string.isRequired,
+  fshader: PropTypes.string.iseRequired,
+  image: PropTypes.string,
+  width: PropTypes.number,
+  height: PropTypes.number,
+  selectedImage: PropTypes.func,
+  selectedImageData: PropTypes.object
 }
 
 export default ImageShaderComponent;

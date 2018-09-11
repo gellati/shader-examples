@@ -3,7 +3,6 @@ import * as THREE from 'three';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 
-
 const StyledMainImageComponent = styled.div`
   width: 10%;
   cursor: pointer;
@@ -23,6 +22,7 @@ class MainImageComponent extends Component{
     this.stop = this.stop.bind(this)
     this.renderShader = this.renderShader.bind(this)
     this.animate = this.animate.bind(this)
+
     this.setWidth = this.setWidth.bind(this)
     this.prepareAnimate = this.prepareAnimate.bind(this)
     this.doAnimate = this.doAnimate.bind(this)
@@ -32,8 +32,6 @@ class MainImageComponent extends Component{
       fshader: props.fshader,
       image: props.image
     }
-    let renderer = new THREE.WebGLRenderer({antialias: true});
-    this.renderer = renderer
 
     if(this.props.width){
       this.state.width = this.props.width
@@ -48,6 +46,20 @@ class MainImageComponent extends Component{
     else{
       this.state.height = 200
     }
+
+    let renderer = new THREE.WebGLRenderer({antialias: true});
+    let scene = new THREE.Scene();
+    let camera = new THREE.PerspectiveCamera(45, this.state.width / this.state.height, 1, 1000000); //, window.innerWidth / window.innerHeight, 1, 1000000);
+    let clock = new THREE.Clock();
+    const loader = new THREE.TextureLoader();
+    const geometry = new THREE.PlaneGeometry(1, 1);
+
+    this.renderer = renderer
+    this.scene = scene
+    this.camera = camera
+    this.clock = clock
+    this.loader = loader
+    this.geometry = geometry
   }
 
   setWidth(){
@@ -61,19 +73,7 @@ class MainImageComponent extends Component{
     }
   }
 
-  setHeight(height){
-    this.setState({height: height})
-  }
-
   componentDidMount(){
-    console.log("MainImageComponent componentDidMount render image: ", this.props.image)
-/*
-    mainData = {
-      fshader: this.props.fshader,
-      vshader: this.props.vshader,
-      image: this.props.image
-    }
-  */
     this.prepareAnimate()
     this.doAnimate();
     this.doAppendChild()
@@ -81,48 +81,42 @@ class MainImageComponent extends Component{
 
   componentDidUpdate(){
     console.log("MainImageComponent componentDidUpdate render image: ", this.props.image)
-/*
-    mainData = {
-      fshader: this.props.selectImageData.fshader,
-      vshader: this.props.selectImageData.vshader,
-      image: this.props.selectImageData.image
-    }
-    */
+
     mainData.fshader = this.props.fshader
       mainData.vshader= this.props.vshader
+      if(this.props.image){
       mainData.image= this.props.image
-
-
-    console.log("Main componentDidUpdate3: ",
-         this.props.selectImageData)
-
-    console.log("MainImageComponent componentDidUpdate render mainData: ", mainData)
+    }
 
     this.prepareAnimate()
     this.doAnimate()
-    this.doAppendChild()
   }
 
 ////////////////////////
   prepareAnimate(){
-    console.log("MainImageComponent prepareAnimate: ", this.props.image)
-
     const width = this.state.width; // 400
     const height = this.state.height; // 400
 
-    let scene = new THREE.Scene();
-    let camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000000); //, window.innerWidth / window.innerHeight, 1, 1000000);
-    camera.position.z = 1;
+    this.camera.position.z = 1;
     this.renderer.setSize(width, height); //window.innerWidth, window.innerHeight);
-    let clock = new THREE.Clock();
-    const loader = new THREE.TextureLoader();
 
-    const texture = loader.load(mainData.image)
-    const uniforms = {
-      iTime: { type: "f", value: 10000.0},
-      iResolution: { type: "v2", value: new THREE.Vector2()},
-      texture1: {type: 't', value: texture }
-    };
+let uniforms = {}
+
+if(this.props.image){
+  const texture = this.loader.load(mainData.image)
+  uniforms = {
+    iTime: { type: "f", value: 10000.0},
+    iResolution: { type: "v2", value: new THREE.Vector2()},
+    texture1: {type: 't', value: texture }
+  };
+
+}
+else{
+  uniforms = {
+    iTime: { type: "f", value: 10000.0},
+    iResolution: { type: "v2", value: new THREE.Vector2()},
+  };
+}
     uniforms.iResolution.value.x = width; //window.innerWidth;
     uniforms.iResolution.value.y = height; //window.innerHeight;
 
@@ -132,17 +126,12 @@ class MainImageComponent extends Component{
       fragmentShader: mainData.fshader
     }); // document.getElementById('fragmentShader').textContent });
 
-    const geometry = new THREE.PlaneGeometry(1, 1);
-    const mesh = new THREE.Mesh(geometry, material);
+    const mesh = new THREE.Mesh(this.geometry, material);
     mesh.scale.x = width; //window.innerWidth;
     mesh.scale.y = height; //window.innerHeight;
-    scene.add(mesh);
+    this.scene.add(mesh);
 
-    this.scene = scene
-    this.camera = camera
-//    this.renderer = renderer
     this.uniforms = uniforms
-    this.clock = clock
   }
 
   doAppendChild(){
@@ -175,8 +164,6 @@ class MainImageComponent extends Component{
   }
 ////////////////////////
   render() {
-    console.log("MainImageComponent render image: ", this.props.image)
-
     return (
       <StyledMainImageComponent
       className="shader-component">
@@ -191,9 +178,13 @@ class MainImageComponent extends Component{
 }
 
 MainImageComponent.propTypes = {
-  vshader: PropTypes.string,
-  fshader: PropTypes.string,
+  vshader: PropTypes.string.isRequired,
+  fshader: PropTypes.string.isRequired,
   image: PropTypes.string,
+  width: PropTypes.number,
+  height: PropTypes.number,
+  selectedImage: PropTypes.func,
+  selectedImageData: PropTypes.object
 }
 
 export default MainImageComponent;

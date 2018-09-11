@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import ImageShaderComponent from './ImageShaderComponent'
 
-
 const myshaders = {
+
   vshader : `varying vec2 vUv;
              void main(){
                vUv = uv;
@@ -13,35 +13,31 @@ const myshaders = {
              uniform vec2 iResolution;
              void main(){
                vec2 uv = gl_FragCoord.xy/iResolution.xy;
-               vec2 p = (2. * uv - 1.);
-               p.x *= .5;
+               vec2 p = (2.* uv - 1.);
+               float d = 0.01;
                vec3 col;
-               float speed = .1;
-               float t = iTime * .3;
-               t += 5000.;
-               float l = length(p)*t*.0015;
-               uv += p/l*((t * .001)+2.)*(tan(l*2. - t*speed));
-               for(int i = 0; i <= 3; i++){
-                 col[i] = .2/length(mod(uv, 1.5)-.5);
-                 col[i] = (.9 * float(i) * sin(t));
+               float l = length(p);
+               float t = iTime* .25;
+               for(int i = 0; i <=3; i++){
+                 uv+=p/l*(cos(l-t));
+                 col[i] = d/length(mod(uv, 1.0)-.5);
                }
-               gl_FragColor = vec4(col/l,0.);
+               gl_FragColor = vec4(col/l, 0.);
              }`
 }
 
-export default class LiquidMetalRings extends Component {
-  constructor(){
-    super()
+export default class Basic3Dscene extends Component {
+  constructor(props){
+    super(props)
   }
-
   render(){
     var props = this.props
     return(
-      <div>
-         <ImageShaderComponent vshader={myshaders.vshader}
+         <ImageShaderComponent
+                               vshader={myshaders.vshader}
                                fshader={myshaders.fshader}
-                               {...props} />
-      </div>
+                               {...props} // handleClick={this.props.handleClick}
+                                />
     )
   }
 }

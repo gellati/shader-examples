@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import * as THREE from 'three';
+//import styled from 'styled-components'
 import PropTypes from 'prop-types'
 
 class ShaderComponent extends Component{

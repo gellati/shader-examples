@@ -1,7 +1,19 @@
 import React, { Component } from 'react';
-import * as THREE from 'three';
-import styled from 'styled-components';
-import PropTypes from 'prop-types';
+
+
+// ok, work
+import First from './First'
+import Logic from './Logic'
+import GradientFill from './GradientFill'
+import Animation from './Animation'
+
+//import BoxBlur from './BoxBlur'
+//import Vignette from './Vignette'
+import ColorIntensityDistance from './ColorIntensityDistance'
+import ColorSeparation from './ColorSeparation'
+//import LiquidMetalRings from './LiquidMetalRings'
+
+import ThreeShader from './ThreeShader'
 
 import RawImage from './RawImage'
 import Sepia from './Sepia'
@@ -9,10 +21,10 @@ import Greyscale from './Greyscale'
 import WaterAnimation from './WaterAnimation'
 import MainImageComponent from './MainImageComponent'
 
-import image from '../static/media/images/stones.jpg'
+import Basic3Dscene from './Basic3Dscene'
 
 class Dashboard extends Component{
-  constructor(props){
+  constructor(){
     super()
     this.state = {
       selectedImageData: {
@@ -26,8 +38,6 @@ class Dashboard extends Component{
   }
 
   selectedImage(params){
-    console.log("selectedImage: ", params)
-
     this.setState({
       selectedImageData: params
     })
@@ -37,25 +47,6 @@ class Dashboard extends Component{
     var props = {}
     props.selectedImage = this.selectedImage
     props.selectImageData =  this.state.selectedImageData
-
-    const myshaders = {
-
-      vshader : `varying vec2 vUv;
-                 vec2 fff;
-                 void main(){
-                   vUv = uv;
-                   vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-                   gl_Position = projectionMatrix * mvPosition;
-                 }`,
-      fshader : `uniform vec2 iResolution;
-                 uniform sampler2D texture1;
-                 void main(){
-                   vec2 uv = gl_FragCoord.xy/iResolution.xy;
-                   vec4 col = texture2D(texture1, uv);
-                   gl_FragColor = col;
-                 }`
-    }
-
 
     return(
       <div id="container">
@@ -67,15 +58,49 @@ class Dashboard extends Component{
                             height={400}
                             width={400}
                             ref={this.mainImage}
+                            {...props}
                             >
       </MainImageComponent>
       </div>
       <div className="components">
-      <RawImage {...props} // handleClick={this.handleClick}
-                />
+
+{/* 304 */}
+      <First {...props} />
+      <Logic {...props} />
+      <GradientFill {...props} />
+      <Animation {...props} />
+
+{/* 305 */}
+      <RawImage {...props} />
+      {/* handleClick={this.handleClick} */}
       <Sepia {...props} />
       <Greyscale {...props} />
       <WaterAnimation {...props} />
+
+{/* 306 */}
+{/*
+  <BoxBlur {...props} />
+  <Vignette {...props} />
+*/}
+
+{/*      <TunnelAnimation {...props} /> */}
+
+
+{/* 309 */}
+      <ThreeShader {...props} />
+
+
+{/*  */}
+      <ColorIntensityDistance {...props} />
+      <ColorSeparation {...props} />
+      {/*
+        <LiquidMetalRings {...props} />
+      */}
+
+      <Basic3Dscene {...props} />
+
+
+
       </div>
       </div>
 
