@@ -194,7 +194,7 @@ const material = new THREE.ShaderMaterial({
 
 ImageShaderComponent.propTypes = {
   vshader: PropTypes.string.isRequired,
-  fshader: PropTypes.string.iseRequired,
+  fshader: PropTypes.string.isRequired,
   image: PropTypes.string,
   width: PropTypes.number,
   height: PropTypes.number,
